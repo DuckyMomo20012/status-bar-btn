@@ -1,21 +1,33 @@
-MIT License
+# Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International Public License
 
-Copyright (c) 2022 Anthony Fu <https://github.com/antfu>
+By exercising the Licensed Rights (defined below), You accept and agree to be bound by the terms and conditions of this Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International Public License ("Public License"). To the extent this Public License may be interpreted as a contract, You are granted the Licensed Rights in consideration of Your acceptance of these terms and conditions, and the Licensor grants You such rights in consideration of benefits the Licensor receives from making the Licensed Material available under these terms and conditions.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+## Section 1 – Definitions.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+- **Licensed Material**: the artistic or literary work, database, or other material to which the Licensor applied this Public License.
+- **Licensor**: the individual(s) or entity(ies) granting rights under this Public License.
+- **You**: the individual or entity exercising the Licensed Rights under this Public License.
+- **Share**: to provide material to the public by any means or process.
+- **Adapted Material**: material derived from or modified based on the Licensed Material.
+- **NonCommercial**: not primarily intended for or directed towards commercial advantage or monetary compensation.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+## Section 2 – Scope.
+
+### 2.1 License Grant
+
+Subject to the terms of this Public License, the Licensor grants You a worldwide, royalty-free, non-exclusive, irrevocable license to:
+
+- **Share**: copy and redistribute the Licensed Material in any medium or format.
+- **Adapt**: remix, transform, and build upon the Licensed Material.
+
+### 2.2 Conditions
+
+- **Attribution (BY)**: You must give appropriate credit, provide a link to the license, and indicate if changes were made.
+- **NonCommercial (NC)**: You may **not** use the material for commercial purposes.
+- **ShareAlike (SA)**: If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+
+## Section 3 – Disclaimer.
+
+The Licensed Material is provided "as-is" without any warranties or guarantees. The Licensor is not liable for any damages arising from its use.
+
+**Full License Text:** [Creative Commons License](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode)
