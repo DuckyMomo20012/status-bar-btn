@@ -5,9 +5,9 @@
   "version": "1.0.0",
   "private": true,
   "packageManager": "pnpm@11.9.0",
-  "description": "",
+  "description": "Register custom buttons in the status bar with a simple configuration.",
   "author": "DuckyMomo20012 <tienvinh.duong4@gmail.com>",
-  "license": "MIT",
+  "license": "CC BY-NC-SA 4.0",
   "funding": "https://github.com/sponsors/DuckyMomo20012",
   "homepage": "https://github.com/DuckyMomo20012/status-bar-btn#readme",
   "repository": {
@@ -20,6 +20,10 @@
   "sponsor": {
     "url": "https://github.com/sponsors/DuckyMomo20012"
   },
+  "keywords": [
+    "statusbar",
+    "button"
+  ],
   "categories": [
     "Other"
   ],
@@ -80,11 +84,11 @@
               },
               "name": {
                 "type": "string",
-                "description": "The descriptive name of the entry (e.g., 'Git Status'), visible in user settings."
+                "description": "The descriptive name of the entry (e.g., `Git Status`), visible in user settings."
               },
               "text": {
                 "type": "string",
-                "description": "The text to show. Supports octicons using the '$(icon-name)' syntax."
+                "description": "The text to show. Supports octicons using the `$(icon-name)` syntax."
               },
               "tooltip": {
                 "description": "The tooltip text displayed when hovering over this entry.",
@@ -101,13 +105,16 @@
                     ],
                     "properties": {
                       "value": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "The markdown string."
                       },
                       "isTrusted": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "description": "Indicates that this markdown string is from a trusted source. Only *trusted* markdown supports links that execute commands, e.g. `[Run it](command:myCommandId)`. Defaults to `false` (commands are disabled)."
                       },
                       "supportThemeIcons": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "description": "Indicates that this markdown string can contain [ThemeIcons](https://code.visualstudio.com/api/references/vscode-api#ThemeIcon), e.g. `$(zap)`."
                       }
                     }
                   }
@@ -128,7 +135,8 @@
                     ],
                     "properties": {
                       "id": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "The id of this color."
                       }
                     }
                   }
@@ -136,7 +144,7 @@
               },
               "backgroundColor": {
                 "type": "object",
-                "description": "The background color for this entry. Officially supports 'statusBarItem.errorBackground' or 'statusBarItem.warningBackground'.",
+                "description": "The background color for this entry. Officially supports `statusBarItem.errorBackground` or `statusBarItem.warningBackground`.",
                 "required": [
                   "id"
                 ],
@@ -165,16 +173,20 @@
                     ],
                     "properties": {
                       "command": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "The identifier of the actual command handler."
                       },
                       "title": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Title of the command, like `save`."
                       },
                       "tooltip": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "A tooltip for the command, when represented in the UI."
                       },
                       "arguments": {
                         "type": "array",
+                        "description": "Arguments that the command handler should be invoked with.",
                         "items": {}
                       }
                     }
@@ -200,6 +212,32 @@
                 "type": "boolean",
                 "description": "Whether the status bar item is visible",
                 "default": true
+              },
+              "showOnWorkspaceContains": {
+                "type": "string",
+                "markdownDescription": "A [glob pattern](https://code.visualstudio.com/docs/editor/codebasics#_advanced-search-options) that this status bar item should be visible for."
+              },
+              "showOnLanguage": {
+                "type": "array",
+                "markdownDescription": "An array of [language identifiers](https://code.visualstudio.com/docs/languages/identifiers) that this status bar item should be visible for **ACTIVE** text editor. RegEx patterns (and flags) are supported (e.g., `/^python/gm`).",
+                "items": {
+                  "type": "string"
+
+                }
+              },
+              "showOnFileName": {
+                "type": "array",
+                "markdownDescription": "An array of file names (or RegEx patterns) that this status bar item should be visible for **ACTIVE** text editor. RegEx patterns (and flags) are supported (e.g., `/^README.md$/gm`).",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "showOnFileText": {
+                "type": "array",
+                "markdownDescription": "An array of text patterns (or RegEx patterns) that this status bar item should be visible for **ACTIVE** text editor. RegEx patterns (and flags) are supported (e.g., `/TODO/gm`).",
+                "items": {
+                  "type": "string"
+                }
               }
             },
             "required": [

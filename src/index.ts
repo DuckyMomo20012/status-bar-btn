@@ -1,18 +1,52 @@
 import type { Command } from 'vscode'
-import { defineExtension, defineLogger, useCommands, useStatusBarItem, watch, watchEffect } from 'reactive-vscode'
-import { ConfigurationTarget, MarkdownString, StatusBarAlignment, ThemeColor } from 'vscode'
+import { defineExtension, defineLogger, useActiveTextEditor, useCommands, useStatusBarItem, watch, watchEffect } from 'reactive-vscode'
+import { ConfigurationTarget, MarkdownString, StatusBarAlignment, ThemeColor, workspace } from 'vscode'
 import { config } from './config'
 
-const DEFAULT_BTN_VISIBILITY = true
+const DEFAULT_BTN_VISIBILITY = false
+
+function toRegExp(str: string): RegExp {
+  const regexMatch = str.match(/^\/(.*)\/([gimsuy]*)$/)
+
+  if (regexMatch) {
+    const [_, pattern, flags] = regexMatch
+    return new RegExp(pattern, flags)
+  }
+
+  return new RegExp(str)
+}
+
+function activationStringCheck(a: string, b: string[]) {
+  const logger = defineLogger('status-bar-btn')
+
+  if (!Array.isArray(b) || b.length === 0) {
+    return true
+  }
+
+  return b.some((str) => {
+    try {
+      const regex = toRegExp(str)
+      logger.appendLine(`Checking if "${a}" matches regex pattern "${regex}"`)
+      return regex.test(a)
+    }
+    catch (error) {
+      logger.appendLine(`Invalid regex pattern provided "${str}": ${error}`)
+      return false
+    }
+  })
+}
 
 const { activate, deactivate } = defineExtension(() => {
   const logger = defineLogger('status-bar-btn')
 
-  watch(() => [config.enabled, config.btns], ([enabled, btns], _, onCleanup) => {
-    if (!enabled || !Array.isArray(btns))
-      return
+  const activeTextEditor = useActiveTextEditor()
 
-    const currentBtns = btns.map((btn) => {
+  watch(() => [config.enabled, config.btns, activeTextEditor], async ([enabled, btns], _, onCleanup) => {
+    if (!enabled || !Array.isArray(btns)) {
+      return
+    }
+
+    const currentBtns = await Promise.all(btns.map(async (btn) => {
       let tooltip: string | MarkdownString | undefined = btn.tooltip as string | undefined
       if (btn.tooltip && typeof btn.tooltip === 'object') {
         const tooltipObj = btn.tooltip as MarkdownString
@@ -21,6 +55,16 @@ const { activate, deactivate } = defineExtension(() => {
         md.supportThemeIcons = !!tooltipObj.supportThemeIcons
         tooltip = md
       }
+
+      const showOnWorkspaceContains = btn.showOnWorkspaceContains ? (await (workspace.findFiles(btn.showOnWorkspaceContains))).length > 0 : undefined
+
+      const showOnLanguage = btn.showOnLanguage ? activationStringCheck(activeTextEditor?.value?.document.languageId ?? '', btn.showOnLanguage) : undefined
+
+      const showOnFileName = btn.showOnFileName ? activationStringCheck(activeTextEditor?.value?.document.fileName ?? '', btn.showOnFileName) : undefined
+
+      const showOnFileText = btn.showOnFileText ? activationStringCheck(activeTextEditor?.value?.document.getText() ?? '', btn.showOnFileText) : undefined
+
+      const isVisible = btn.visible ?? showOnWorkspaceContains ?? showOnLanguage ?? showOnFileName ?? showOnFileText ?? DEFAULT_BTN_VISIBILITY
 
       const item = useStatusBarItem({
         id: btn.id,
@@ -33,7 +77,7 @@ const { activate, deactivate } = defineExtension(() => {
         backgroundColor: btn.backgroundColor?.id ? new ThemeColor(btn.backgroundColor.id) : undefined,
         command: btn.command as string | Command | undefined,
         accessibilityInformation: btn.accessibilityInformation,
-        visible: btn.visible ?? DEFAULT_BTN_VISIBILITY,
+        visible: isVisible,
       })
 
       watchEffect(() => {
@@ -41,7 +85,7 @@ const { activate, deactivate } = defineExtension(() => {
       })
 
       return item
-    })
+    }))
 
     onCleanup(() => {
       currentBtns.forEach((btn) => {
