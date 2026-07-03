@@ -1,18 +1,32 @@
-name: Publish Extension
+name: Release Please
 
 on:
   push:
-    tags:
-      - v*
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
-  publish-extension:
-    permissions:
-      id-token: write
-      contents: write
-      actions: write
-
+  release-please:
     runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          release-type: node
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-extension:
+    runs-on: ubuntu-latest
+    needs: release-please
+    # Only run this job if a new release was actually created and merged by release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,18 +42,21 @@ jobs:
           node-version: lts/*
           cache: pnpm
 
-      - run: npx changelogithub
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-
       - run: pnpm install
 
       - name: Generate .vsix file
-        run: pnpm package
+        run: pnpm ext:package
+
+      - name: Upload VSIX to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.release-please.outputs.tag_name }}
+          files: |
+            *.vsix
 
       - name: Publish Extension
         run: npx vsxpub --no-dependencies
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VSCE_PAT: ${{secrets.VSCE_PAT}}
-          OVSX_PAT: ${{secrets.OVSX_PAT}}
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
