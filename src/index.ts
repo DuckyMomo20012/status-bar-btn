@@ -1,7 +1,11 @@
 import type { Command } from 'vscode'
-import { defineExtension, defineLogger, useActiveTextEditor, useCommands, useStatusBarItem, watch, watchEffect } from 'reactive-vscode'
+import { computed, defineExtension, useActiveTextEditor, useCommands, useStatusBarItem, watch, watchEffect } from 'reactive-vscode'
 import { ConfigurationTarget, MarkdownString, StatusBarAlignment, ThemeColor, workspace } from 'vscode'
+import { useClockContext } from './composables/useClockContext'
+import { useOsContext } from './composables/useOsContext'
+import { useWorkspaceContext } from './composables/useTemplateContext'
 import { config } from './config'
+import { getValueByPath, logger } from './utils'
 
 const DEFAULT_BTN_VISIBILITY = false
 
@@ -17,8 +21,6 @@ function toRegExp(str: string): RegExp {
 }
 
 function activationStringCheck(a: string, b: string[]) {
-  const logger = defineLogger('status-bar-btn')
-
   if (!Array.isArray(b) || b.length === 0) {
     return true
   }
@@ -36,10 +38,14 @@ function activationStringCheck(a: string, b: string[]) {
   })
 }
 
-const { activate, deactivate } = defineExtension(() => {
-  const logger = defineLogger('status-bar-btn')
+function interpolate(template: string, contextData: any): string {
+  return template.replace(/\$\{([^}]+)\}/g, (_, targetPath) => getValueByPath(contextData, targetPath))
+}
 
+const { activate, deactivate } = defineExtension(() => {
   const activeTextEditor = useActiveTextEditor()
+  const workspaceCtx = useWorkspaceContext()
+  const osContext = useOsContext()
 
   watch(() => [config.enabled, config.btns, activeTextEditor], async ([enabled, btns], _, onCleanup) => {
     if (!enabled || !Array.isArray(btns)) {
@@ -47,13 +53,24 @@ const { activate, deactivate } = defineExtension(() => {
     }
 
     const currentBtns = await Promise.all(btns.map(async (btn) => {
-      let tooltip: string | MarkdownString | undefined = btn.tooltip as string | undefined
+      const clockContext = useClockContext(() => btn.interpolation?.clockTimezone)
+
+      const context = computed(() => ({
+        ...workspaceCtx.value,
+        os: osContext.value,
+        clock: clockContext.value,
+      }))
+
+      let tooltip: string | MarkdownString | undefined = btn.tooltip as string | MarkdownString | undefined
       if (btn.tooltip && typeof btn.tooltip === 'object') {
         const tooltipObj = btn.tooltip as MarkdownString
-        const md = new MarkdownString(tooltipObj.value)
+        const md = new MarkdownString(interpolate(tooltipObj.value, context.value))
         md.isTrusted = !!tooltipObj.isTrusted
         md.supportThemeIcons = !!tooltipObj.supportThemeIcons
         tooltip = md
+      }
+      else if (btn.tooltip && typeof btn.tooltip === 'string') {
+        tooltip = interpolate(btn.tooltip, context.value)
       }
 
       const showOnWorkspaceContains = btn.showOnWorkspaceContains ? (await (workspace.findFiles(btn.showOnWorkspaceContains))).length > 0 : undefined
@@ -71,7 +88,11 @@ const { activate, deactivate } = defineExtension(() => {
         alignment: btn.alignment === 'left' ? StatusBarAlignment.Left : StatusBarAlignment.Right,
         priority: btn.priority,
         name: btn.name,
-        text: btn.text,
+        text: () => {
+          if (!btn.text)
+            return ''
+          return interpolate(btn.text, context.value)
+        },
         tooltip,
         color: btn.color as string | ThemeColor | undefined,
         backgroundColor: btn.backgroundColor?.id ? new ThemeColor(btn.backgroundColor.id) : undefined,
