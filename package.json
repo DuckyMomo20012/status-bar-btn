@@ -2,7 +2,7 @@
   "publisher": "DuckyMomo20012",
   "name": "status-bar-btn",
   "displayName": "status-bar-btn",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "packageManager": "pnpm@11.9.0",
   "description": "Register custom buttons in the status bar with a simple configuration.",
@@ -222,7 +222,6 @@
                 "markdownDescription": "An array of [language identifiers](https://code.visualstudio.com/docs/languages/identifiers) that this status bar item should be visible for **ACTIVE** text editor. RegEx patterns (and flags) are supported (e.g., `/^python/gm`).",
                 "items": {
                   "type": "string"
-
                 }
               },
               "showOnFileName": {
