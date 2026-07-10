@@ -8,10 +8,11 @@
 
 <!-- configs -->
 
-| Key                      | Description                                           | Type      | Default |
-| ------------------------ | ----------------------------------------------------- | --------- | ------- |
-| `status-bar-btn.enabled` | Enable or disable the status bar button.              | `boolean` | `true`  |
-| `status-bar-btn.btns`    | An array of button configurations for the status bar. | `array`   | `[]`    |
+| Key                                        | Description                                                           | Type      | Default |
+| ------------------------------------------ | --------------------------------------------------------------------- | --------- | ------- |
+| `status-bar-btn.enabled`                   | Enable or disable the status bar button.                              | `boolean` | `true`  |
+| `status-bar-btn.interpolation.os.interval` | The interval in milliseconds for updating OS stats in the status bar. | `number`  | `2000`  |
+| `status-bar-btn.btns`                      | An array of button configurations for the status bar.                 | `array`   | `[]`    |
 
 <!-- configs -->
 
@@ -19,174 +20,45 @@
 
 <!-- commands -->
 
-| Command                 | Title                                    |
-| ----------------------- | ---------------------------------------- |
-| `status-bar-btn.toggle` | status-bar-btn: Toggle Status Bar Button |
+| Command                             | Title                                    |
+| ----------------------------------- | ---------------------------------------- |
+| `status-bar-btn.toggle`             | status-bar-btn: Toggle Status Bar Button |
+| `status-bar-btn.changeSettingsJson` | status-bar-btn: Change Settings Json     |
 
 <!-- commands -->
 
-## Full Configuration Schema
+## Features
 
-<details>
-<summary>Click to expand</summary>
+- **Custom Status Bar Buttons**: Add custom buttons to the VS Code status bar
+  with configurable text, tooltip, color, background color, and command.
 
-- Object
-  - **type:** object
-  - **title:** Status Bar Button
-  - **properties:**
-    - **status-bar-btn.enabled:**
-      - **type:** boolean
-      - **default:** `true`
-      - **description:** Enable or disable the status bar button.
-    - **status-bar-btn.btns:**
-      - **type:** array
-      - **default:**
-        - *(empty array)*
-      - **description:** An array of button configurations for the status bar.
-      - **items:**
-        - **type:** object
-        - **description:** Configuration for a single status bar button.
-        - **additionalProperties:** `false`
-        - **properties:**
-          - **id:**
-            - **type:** string
-            - **description:** The identifier of this item. Falls back to extension ID if omitted.
-          - **alignment:**
-            - **type:** string
-            - **enum:**
-              - left
-              - right
-            - **default:** right
-            - **description:** The alignment of this item in the status bar (Left or Right).
-          - **priority:**
-            - **type:** number
-            - **description:** The priority of this item. Higher values push the item further to the left.
-          - **name:**
-            - **type:** string
-            - **description:** The descriptive name of the entry (e.g., `Git Status`), visible in user settings.
-          - **text:**
-            - **type:** string
-            - **description:** The text to show. Supports octicons using the `$(icon-name)` syntax.
-          - **tooltip:**
-            - **description:** The tooltip text displayed when hovering over this entry.
-            - **anyOf:**
-              - Object
-                - **type:** string
-                - **description:** Plain text tooltip.
-              - Object
-                - **type:** object
-                - **description:** Markdown formatted string.
-                - **required:**
-                  - value
-                - **properties:**
-                  - **value:**
-                    - **type:** string
-                    - **description:** The markdown string.
-                  - **isTrusted:**
-                    - **type:** boolean
-                    - **description:** Indicates that this markdown string is from a trusted source. Only *trusted* markdown supports links that execute commands, e.g. `[Run it](command:myCommandId)`. Defaults to `false` (commands are disabled).
-                  - **supportThemeIcons:**
-                    - **type:** boolean
-                    - **description:** Indicates that this markdown string can contain [ThemeIcons](https://code.visualstudio.com/api/references/vscode-api#ThemeIcon), e.g. `$(zap)`.
-          - **color:**
-            - **description:** The foreground text/icon color for this entry.
-            - **anyOf:**
-              - Object
-                - **type:** string
-                - **description:** A traditional hex/color string or theme token identifier.
-              - Object
-                - **type:** object
-                - **description:** A dedicated VS Code ThemeColor instance reference wrapper.
-                - **required:**
-                  - id
-                - **properties:**
-                  - **id:**
-                    - **type:** string
-                    - **description:** The id of this color.
-          - **backgroundColor:**
-            - **type:** object
-            - **description:** The background color for this entry. Officially supports `statusBarItem.errorBackground` or `statusBarItem.warningBackground`.
-            - **required:**
-              - id
-            - **properties:**
-              - **id:**
-                - **type:** string
-                - **enum:**
-                  - statusBarItem.errorBackground
-                  - statusBarItem.warningBackground
-          - **command:**
-            - **description:** The identifier string or complete Command object to run on click.
-            - **anyOf:**
-              - Object
-                - **type:** string
-                - **description:** The ID string of the command to execute.
-              - Object
-                - **type:** object
-                - **description:** Full command declaration metadata block.
-                - **required:**
-                  - command
-                - **properties:**
-                  - **command:**
-                    - **type:** string
-                    - **description:** The identifier of the actual command handler.
-                  - **title:**
-                    - **type:** string
-                    - **description:** Title of the command, like `save`.
-                  - **tooltip:**
-                    - **type:** string
-                    - **description:** A tooltip for the command, when represented in the UI.
-                  - **arguments:**
-                    - **type:** array
-                    - **description:** Arguments that the command handler should be invoked with.
-                    - **items:**
-                      - *(empty object)*
-          - **accessibilityInformation:**
-            - **type:** object
-            - **description:** Accessibility information used when a screen reader interacts with this item.
-            - **required:**
-              - label
-            - **properties:**
-              - **label:**
-                - **type:** string
-              - **role:**
-                - **type:** string
-          - **visible:**
-            - **type:** boolean
-            - **description:** Whether the status bar item is visible
-            - **default:** `true`
-          - **showOnWorkspaceContains:**
-            - **type:** string
-            - **markdownDescription:** A [glob pattern](https://code.visualstudio.com/docs/editor/codebasics#_advanced-search-options) that this status bar item should be visible for.
-          - **showOnLanguage:**
-            - **type:** array
-            - **markdownDescription:** An array of [language identifiers](https://code.visualstudio.com/docs/languages/identifiers) that this status bar item should be visible for **ACTIVE** text editor. RegEx patterns (and flags) are supported (e.g., `/^python/gm`).
-            - **items:**
-              - **type:** string
-          - **showOnFileName:**
-            - **type:** array
-            - **markdownDescription:** An array of file names (or RegEx patterns) that this status bar item should be visible for **ACTIVE** text editor. RegEx patterns (and flags) are supported (e.g., `/^README.md$/gm`).
-            - **items:**
-              - **type:** string
-          - **showOnFileText:**
-            - **type:** array
-            - **markdownDescription:** An array of text patterns (or RegEx patterns) that this status bar item should be visible for **ACTIVE** text editor. RegEx patterns (and flags) are supported (e.g., `/TODO/gm`).
-            - **items:**
-              - **type:** string
-        - **required:**
-          - text
-          - command
+- **Button Visibility Logic**: Control the visibility of buttons based on
+  workspace contents, active language, file name, or file text.
 
-</details>
+- **Change Settings Json File**: Change the `settings.json` file directly from
+  the status bar button, allowing you to toggle settings or cycle through
+  predefined values.
+
+- **Workspace Context Interpolation**: Use workspace and file context variables
+  in button text and tooltip for dynamic content.
+
+- **OS Stats Interpolation**: Display real-time OS stats (CPU usage, memory
+  usage, uptime) in button text and tooltip.
+
+- **Clock Interpolation**: Display the current time and date in button text and
+  tooltip, with support for custom IANA timezones.
+
 
 ## Button Visibility Logic
 
-By default, all buttons are **HIDDEN** unless explicitly set to visible. The
-visibility of a button can be controlled using the following properties:
-
+> [!WARNING]
+> By default, all buttons are **HIDDEN** unless explicitly set to visible.
+>
 > Priority order (from highest to lowest): `isVisible` >
 > `showOnWorkspaceContains` > `showOnLanguage` > `showOnFileName` >
 > `showOnFileText`
 
+The visibility of a button can be controlled using the following properties:
 
 - `isVisible`: Highest priority. If set, it will override all other visibility
   conditions.
@@ -422,7 +294,437 @@ practices when designing status bar buttons.
   }
   ```
 
-## Testing
+## Changing Settings Json File
+
+This extension provides a command `status-bar-btn.changeSettingsJson` that allows
+you to change the `settings.json` file directly from the status bar button.
+
+This command allows you to register **an array of arguments**, each of which can
+change a specific setting in the `settings.json` file. When the button is
+clicked, it will cycle through the provided arguments and update the
+corresponding settings in the `settings.json` file accordingly. Therefore, you
+can update multiple settings in the `settings.json` file with a single button
+click.
+
+> [!NOTE]
+> This command is not registered to the command palette by default, so you can
+> only use it by configuring a button in the `status-bar-btn.btns` array. This
+> is because this command has complex arguments.
+
+**Arguments**:
+
+- `setting` (`string`) (**required**): Configuration name, supports dotted names
+  (e.g., `editor.fontSize`).
+  - By default, the settings are updated using
+    [`WorkspaceConfiguration`](https://code.visualstudio.com/api/references/vscode-api#WorkspaceConfiguration)
+    methods, so any string value that `WorkspaceConfiguration` supports can be
+    used here. For example, you can use `editor.fontSize` to change the font
+    size, or `workbench.colorTheme` to change the color theme.
+
+- `value` (`string | number | boolean | null | undefined`) (optional): The new
+  value to set for the setting.
+  - Note that `value` has a higher priority than `enums`. If `value` is
+    provided, it will be used directly to update the setting.
+
+  - By default `undefined` value will **remove** the setting from the
+    `settings.json` file and **fallback** to the default value.
+
+  - To set value to `undefined`, you can use the string `"undefined"` (e.g.,
+    `value: "undefined"`).
+
+- `enums` (`Array<string | number | boolean | null | undefined>`) (optional): An
+  optional array of allowed values for the setting. If provided, the command
+  will cycle through these values when clicked.
+  - If the current value of the setting is not in the `enums` array, it will be
+    set to the first value in the `enums` array.
+
+- `forceWriteDefault` (`boolean`) (optional): By default, if the new value is
+  the same as the default value or `undefined`, the setting won't be written to
+  the `settings.json` file. If you want to force writing the default value to
+  the `settings.json` file, set this to `true`.
+
+> [!NOTE]
+> If the setting is not registered in the VS Code, nothing will happen. For
+> example, if you try to change a setting that doesn't exist, or the setting is
+> registered by an extension that is not installed or disabled, nothing will
+> happen.
+
+
+> [!NOTE]
+> If the `setting`'s default value is `false`, and you set the `enums` to
+> `[false, "undefined"]`, nothing will happen! Because the extension will
+> retrieve the setting value, so first it will get `false` as default value,
+> then it will set the value to `undefined` (next enum value), which will remove
+> the setting from the `settings.json` file and fallback to the default value
+> `false`. So the next time you click the button, it will get the value `false`
+> again, so you won't see any changes, if you want to force writing the default
+> value to the `settings.json` file, set `forceWriteDefault` to `true`.
+
+**Examples**:
+
+- **Toggle between pre-defined dark/light themes**: During presentation, no one
+  wants to see a dark theme, so this button allows you to quickly toggle between
+  the default dark and light themes.
+
+  ```json
+  {
+    "alignment": "left",
+    "color": "#E64553",
+    "command": {
+      "command": "status-bar-btn.changeSettingsJson",
+      "title": "Toggle Theme",
+      "arguments": [
+        {
+          "setting": "workbench.colorTheme",
+          "enums": ["Dark+", "Light+"]
+        }
+      ]
+    },
+    "id": "toggle-theme",
+    "name": "Toggle Theme",
+    "priority": -5,
+    "text": "$(paintcan)",
+    "tooltip": "Toggle between Default Dark+ and Default Light+ themes",
+    "visible": true
+  }
+  ```
+
+- **Toggle AI features**: This button allows you to quickly toggle between
+  enabling and disabling AI features in VS Code. Because VS Code doesn't provide
+  a built-in command to toggle this setting, and this is why this extension
+  provides a command to change the `settings.json` file directly.
+
+  ```json
+  {
+    "alignment": "left",
+    "color": "#E64553",
+    "command": {
+      "command": "status-bar-btn.changeSettingsJson",
+      "title": "Toggle AI Features",
+      "arguments": [
+        {
+          "setting": "chat.disableAIFeatures",
+          "enums": [true, false]
+        }
+      ]
+    },
+    "id": "toggle-ai-features",
+    "name": "Toggle AI Features",
+    "priority": -6,
+    "text": "$(robot)",
+    "tooltip": "Toggle AI features on/off",
+    "visible": true
+  }
+  ```
+
+- **Combine multiple settings**: Or you can combine multiple settings (like
+  change color theme, increase font size, change layout) for a temporary
+  presentation mode, without having to switch to VS Code's profile.
+
+  ```json
+  {
+    "alignment": "left",
+    "color": "#E64553",
+    "command": {
+      "command": "status-bar-btn.changeSettingsJson",
+      "title": "Presentation Mode",
+      "arguments": [
+        {
+          "setting": "workbench.colorTheme",
+          "enums": ["Dark+", "Light+"]
+        },
+        {
+          "setting": "editor.fontSize",
+          "enums": [14, 18]
+        },
+        {
+          "setting": "workbench.activityBar.visible",
+          "enums": [true, false]
+        }
+      ]
+    },
+    "id": "presentation-mode",
+    "name": "Presentation Mode",
+    "priority": -7,
+    "text": "$(screen-full)",
+    "tooltip": "Toggle presentation mode (theme, font size, layout)",
+    "visible": true
+  }
+  ```
+
+## Workspace Value Interpolation
+
+Value interpolation is supported for these button configuration properties:
+
+- `text`.
+- `tooltip` (works for both plain text and markdown strings).
+
+Interpolation values:
+
+- **Workspace Context**:
+
+  - `${workspaceFolder}`: The absolute path of the primary workspace folder. If
+    there is no workspace folder, it will be an empty string.
+
+  - `${workspaceFolderBasename}`: The name of the primary workspace folder. If
+    there is no workspace folder, it will be an empty string.
+
+  - `${config}`: The value of the configuration setting. For example, if you set
+    `text` to `"$(zap) ${config:editor.fontSize}"`, it will display the current
+    font size in the status bar.
+
+  - `${env:language}`: The language of the VS Code environment. For example: `en`,
+    etc.
+
+  - `${env:appName}`: The name of the VS Code application. For example: `Visual
+    Studio Code`, `VSCodium`, etc.
+
+  - `${env:remoteName}`: The name of the remote environment. For example: `SSH`, `WSL`,
+    etc. If there is no remote environment, it will be an default `local` value.
+
+  - `${env:uiKind}`: The kind of the VS Code UI. For example: `desktop`, `web`.
+
+  - `${file:fsPath}`: The absolute path of the **ACTIVE** text editor file. If
+    there is no active text editor, it will be an empty string.
+
+  - `${file:basename}`: The name of the **ACTIVE** text editor file. If there is
+    no active text editor, it will be an empty string.
+
+  - `${file:ext}`: The extension of the **ACTIVE** text editor file. If there is
+    no active text editor, it will be an empty string.
+
+  - `${file:basenameNoExt}`: The name of the **ACTIVE** text editor file without
+    the extension. If there is no active text editor, it will be an empty string.
+
+  - `${file:dirname}`: The directory name of the **ACTIVE** text editor file. If
+    there is no active text editor, it will be an empty string.
+
+  - `${file:languageId}`: The language identifier of the **ACTIVE** text editor
+    file. If there is no active text editor, it will be an empty string.
+
+- **OS Stats Context**:
+
+  - `${os:platform}`: The platform of the OS. For example: `win32`, `linux`,
+    `darwin`.
+
+  - `${os:arch}`: The architecture of the OS. For example: `x64`, `arm64`, etc.
+
+  - `${os:uptime}`: The uptime of the OS in seconds. Format: `HH:mm:ss`.
+
+  - `${os:freemem}`: The free memory of the OS. Format: `<bytes> B`,
+    `<kilobytes> KB`, `<megabytes> MB`, `<gigabytes> GB`, `terabytes> TB`, etc.
+
+  - `${os:totalmem}`: The total memory of the OS. Format: `<bytes> B`, `<kilobytes> KB`, `<megabytes> MB`,
+    `<gigabytes> GB`, `terabytes> TB`, etc.
+
+  - `${os:cpuUsage}`: The CPU usage of the OS. Format: `<percentage>%`.
+
+  You can use the `status-bar-btn.interpolation.os.interval` setting to control
+  the interval in milliseconds for updating the OS stats in the status bar. The
+  default value is `2000` milliseconds (2 seconds). The minimum value is `500`
+  milliseconds (0.5 seconds).
+
+- **Clock Context**:
+
+  - `${clock:hhmmss}`: The current time in 24-hour format. For example:
+    `17:18:42`.
+
+  - `${clock:hhmm}`: The current time in 24-hour short format. For example:
+    `17:18`.
+
+  - `${clock:ampm}`: The current time in 12-hour format with AM/PM. For example:
+    `5:18:42 PM`.
+
+  - `${clock:fullDate}`: The current date in long format. For example:
+    `July 10, 2026`.
+
+  You can also use the `interpolation.clockTimezone` property to specify a custom
+  IANA timezone for the clock interpolation. If omitted, it will default to the
+  host system timezone.
+
+  For example:
+
+  ```json
+  {
+    "alignment": "left",
+    "color": "#E64553",
+    "id": "clock",
+    "name": "Clock",
+    "priority": -5,
+    "text": "${clock:hhmmss} ${clock:fullDate}",
+    "tooltip": "${clock:hhmmss} ${clock:fullDate}",
+    "interpolation": {
+      "clockTimezone": "America/New_York"
+    },
+    "visible": true
+  }
+  ```
+
+## Full Configuration Schema
+
+<details>
+<summary>Click to expand</summary>
+
+- Object
+  - **type:** object
+  - **title:** Status Bar Button
+  - **properties:**
+    - **status-bar-btn.enabled:**
+      - **type:** boolean
+      - **default:** `true`
+      - **description:** Enable or disable the status bar button.
+    - **status-bar-btn.interpolation.os.interval:**
+      - **type:** number
+      - **default:** `2000`
+      - **description:** The interval in milliseconds for updating OS stats in the status bar.
+    - **status-bar-btn.btns:**
+      - **type:** array
+      - **default:**
+        - *(empty array)*
+      - **description:** An array of button configurations for the status bar.
+      - **items:**
+        - **type:** object
+        - **description:** Configuration for a single status bar button.
+        - **additionalProperties:** `false`
+        - **properties:**
+          - **id:**
+            - **type:** string
+            - **description:** The identifier of this item. Falls back to extension ID if omitted.
+          - **alignment:**
+            - **type:** string
+            - **enum:**
+              - left
+              - right
+            - **default:** right
+            - **description:** The alignment of this item in the status bar (Left or Right).
+          - **priority:**
+            - **type:** number
+            - **description:** The priority of this item. Higher values push the item further to the left.
+          - **name:**
+            - **type:** string
+            - **description:** The descriptive name of the entry (e.g., `Git Status`), visible in user settings.
+          - **text:**
+            - **type:** string
+            - **description:** The text to show. Supports octicons using the `$(icon-name)` syntax.
+          - **tooltip:**
+            - **description:** The tooltip text displayed when hovering over this entry.
+            - **anyOf:**
+              - Object
+                - **type:** string
+                - **description:** Plain text tooltip.
+              - Object
+                - **type:** object
+                - **description:** Markdown formatted string.
+                - **required:**
+                  - value
+                - **properties:**
+                  - **value:**
+                    - **type:** string
+                    - **description:** The markdown string.
+                  - **isTrusted:**
+                    - **type:** boolean
+                    - **description:** Indicates that this markdown string is from a trusted source. Only *trusted* markdown supports links that execute commands, e.g. `[Run it](command:myCommandId)`. Defaults to `false` (commands are disabled).
+                  - **supportThemeIcons:**
+                    - **type:** boolean
+                    - **description:** Indicates that this markdown string can contain [ThemeIcons](https://code.visualstudio.com/api/references/vscode-api#ThemeIcon), e.g. `$(zap)`.
+          - **color:**
+            - **description:** The foreground text/icon color for this entry.
+            - **anyOf:**
+              - Object
+                - **type:** string
+                - **description:** A traditional hex/color string or theme token identifier.
+              - Object
+                - **type:** object
+                - **description:** A dedicated VS Code ThemeColor instance reference wrapper.
+                - **required:**
+                  - id
+                - **properties:**
+                  - **id:**
+                    - **type:** string
+                    - **description:** The id of this color.
+          - **backgroundColor:**
+            - **type:** object
+            - **description:** The background color for this entry. Officially supports `statusBarItem.errorBackground` or `statusBarItem.warningBackground`.
+            - **required:**
+              - id
+            - **properties:**
+              - **id:**
+                - **type:** string
+                - **enum:**
+                  - statusBarItem.errorBackground
+                  - statusBarItem.warningBackground
+          - **command:**
+            - **description:** The identifier string or complete Command object to run on click.
+            - **anyOf:**
+              - Object
+                - **type:** string
+                - **description:** The ID string of the command to execute.
+              - Object
+                - **type:** object
+                - **description:** Full command declaration metadata block.
+                - **required:**
+                  - command
+                - **properties:**
+                  - **command:**
+                    - **type:** string
+                    - **description:** The identifier of the actual command handler.
+                  - **title:**
+                    - **type:** string
+                    - **description:** Title of the command, like `save`.
+                  - **tooltip:**
+                    - **type:** string
+                    - **description:** A tooltip for the command, when represented in the UI.
+                  - **arguments:**
+                    - **type:** array
+                    - **description:** Arguments that the command handler should be invoked with.
+                    - **items:**
+                      - *(empty object)*
+          - **accessibilityInformation:**
+            - **type:** object
+            - **description:** Accessibility information used when a screen reader interacts with this item.
+            - **required:**
+              - label
+            - **properties:**
+              - **label:**
+                - **type:** string
+              - **role:**
+                - **type:** string
+          - **visible:**
+            - **type:** boolean
+            - **description:** Whether the status bar item is visible
+            - **default:** `true`
+          - **showOnWorkspaceContains:**
+            - **type:** string
+            - **markdownDescription:** A [glob pattern](https://code.visualstudio.com/docs/editor/codebasics#_advanced-search-options) that this status bar item should be visible for.
+          - **showOnLanguage:**
+            - **type:** array
+            - **markdownDescription:** An array of [language identifiers](https://code.visualstudio.com/docs/languages/identifiers) that this status bar item should be visible for **ACTIVE** text editor. RegEx patterns (and flags) are supported (e.g., `/^python/gm`).
+            - **items:**
+              - **type:** string
+          - **showOnFileName:**
+            - **type:** array
+            - **markdownDescription:** An array of file names (or RegEx patterns) that this status bar item should be visible for **ACTIVE** text editor. RegEx patterns (and flags) are supported (e.g., `/^README.md$/gm`).
+            - **items:**
+              - **type:** string
+          - **showOnFileText:**
+            - **type:** array
+            - **markdownDescription:** An array of text patterns (or RegEx patterns) that this status bar item should be visible for **ACTIVE** text editor. RegEx patterns (and flags) are supported (e.g., `/TODO/gm`).
+            - **items:**
+              - **type:** string
+          - **interpolation:**
+            - **type:** object
+            - **description:** Interpolation settings for this status bar item.
+            - **properties:**
+              - **clockTimezone:**
+                - **type:** string
+                - **description:** The IANA timezone name to use for clock interpolation. If omitted, defaults to host system timezone.
+        - **required:**
+          - text
+          - command
+
+</details>
+
+## Debugging
 
 You can launch the extension in a new VS Code window by pressing `F5` or running
 the `Debug: Start Debugging` command. This will open a new VS Code window with
@@ -461,6 +763,13 @@ If you want to test workspace-specific settings, you can update the
 Which will launch the extension in a new VS Code window with the workspace set
 to the `src` folder. You can then modify the `settings.json` file in the new
 window and observe the changes in the status bar.
+
+## Logging
+
+To view the logs of the extension, you can open the `Output` panel in VS Code
+and select `status-bar-btn` from the dropdown. The logs will show the current
+state of the extension, including the current configuration and any errors that
+may occur.
 
 ## Publishing
 

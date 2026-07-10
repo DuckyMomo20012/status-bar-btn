@@ -45,8 +45,20 @@
       {
         "command": "status-bar-btn.toggle",
         "title": "status-bar-btn: Toggle Status Bar Button"
+      },
+      {
+        "command": "status-bar-btn.changeSettingsJson",
+        "title": "status-bar-btn: Change Settings Json"
       }
     ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "status-bar-btn.changeSettingsJson",
+          "when": "false"
+        }
+      ]
+    },
     "configuration": {
       "type": "object",
       "title": "Status Bar Button",
@@ -55,6 +67,11 @@
           "type": "boolean",
           "default": true,
           "description": "Enable or disable the status bar button."
+        },
+        "status-bar-btn.interpolation.os.interval": {
+          "type": "number",
+          "default": 2000,
+          "description": "The interval in milliseconds for updating OS stats in the status bar."
         },
         "status-bar-btn.btns": {
           "type": "array",
@@ -236,6 +253,16 @@
                 "markdownDescription": "An array of text patterns (or RegEx patterns) that this status bar item should be visible for **ACTIVE** text editor. RegEx patterns (and flags) are supported (e.g., `/TODO/gm`).",
                 "items": {
                   "type": "string"
+                }
+              },
+              "interpolation": {
+                "type": "object",
+                "description": "Interpolation settings for this status bar item.",
+                "properties": {
+                  "clockTimezone": {
+                    "type": "string",
+                    "description": "The IANA timezone name to use for clock interpolation. If omitted, defaults to host system timezone."
+                  }
                 }
               }
             },
