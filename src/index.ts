@@ -1,3 +1,4 @@
+import type { UseStatusBarItemOptions } from 'reactive-vscode'
 import type { Command } from 'vscode'
 import { computed, defineExtension, useActiveTextEditor, useCommands, useStatusBarItem, watch, watchEffect } from 'reactive-vscode'
 import { ConfigurationTarget, MarkdownString, StatusBarAlignment, ThemeColor, workspace } from 'vscode'
@@ -5,7 +6,7 @@ import { useClockContext } from './composables/useClockContext'
 import { useOsContext } from './composables/useOsContext'
 import { useWorkspaceContext } from './composables/useTemplateContext'
 import { config } from './config'
-import { getValueByPath, logger } from './utils'
+import { deepMerge, getValueByPath, isDeepSubset, logger } from './utils'
 
 const DEFAULT_BTN_VISIBILITY = false
 
@@ -204,6 +205,69 @@ const { activate, deactivate } = defineExtension(() => {
         }
       }
     },
+    'status-bar-btn.configRegisteredBtn': async (
+      ...args: Array<{
+        btnId: string
+        value?: Omit<UseStatusBarItemOptions, 'id' | 'alignment' | 'priority'>
+        enums?: Array<Omit<UseStatusBarItemOptions, 'id' | 'alignment' | 'priority'>>
+      }>
+    ) => {
+      // NOTE: Should determine the target based on the current setting value,
+      // not the new value being set. This ensures that we respect the user's
+      // existing configuration scope.
+      const inspect = config.inspect('enabled')
+
+      let target = ConfigurationTarget.Global
+      if (inspect?.workspaceValue !== undefined) {
+        target = ConfigurationTarget.Workspace
+      }
+      else if (inspect?.workspaceFolderValue !== undefined) {
+        target = ConfigurationTarget.WorkspaceFolder
+      }
+
+      for (const arg of args) {
+        const { btnId, value, enums } = arg
+        if (!btnId) {
+          logger.error(`Missing "btnId" property in argument: ${JSON.stringify(arg)}`)
+          return
+        }
+
+        const currentBtns = config.get('btns') as UseStatusBarItemOptions[] ?? []
+
+        const btnIndex = currentBtns.findIndex(btn => btn.id === btnId)
+        if (btnIndex === -1) {
+          logger.error(`Button with id "${btnId}" not found in configuration`)
+          return
+        }
+
+        // NOTE: Direct changing value has higher priority than cycling through
+        // enums. If both are provided, the value will be set directly.
+        if (value) {
+          currentBtns[btnIndex] = deepMerge(currentBtns[btnIndex], value)
+
+          logger.info(`Updating button with id "${btnId}" in configuration`)
+
+          config.update('btns', currentBtns, target)
+          return
+        }
+
+        if (enums) {
+          const currentValue = currentBtns[btnIndex]
+          const currentEnumIdx = enums.findIndex(enumValue => isDeepSubset(currentValue, enumValue))
+
+          if (currentEnumIdx === -1) {
+            logger.error(`Current value of button with id "${btnId}" is not in the provided enums: ${JSON.stringify(enums)}, set to the first enum value "${JSON.stringify(enums[0])}"`)
+          }
+
+          const newValue = deepMerge(currentValue, enums[(currentEnumIdx + 1) % enums.length])
+
+          currentBtns[btnIndex] = newValue
+
+          config.update('btns', currentBtns, target)
+        }
+      }
+    },
+
   })
 })
 

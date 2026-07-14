@@ -49,12 +49,20 @@
       {
         "command": "status-bar-btn.changeSettingsJson",
         "title": "status-bar-btn: Change Settings Json"
+      },
+      {
+        "command": "status-bar-btn.configRegisteredBtn",
+        "title": "status-bar-btn: Configure Registered Button"
       }
     ],
     "menus": {
       "commandPalette": [
         {
           "command": "status-bar-btn.changeSettingsJson",
+          "when": "false"
+        },
+        {
+          "command": "status-bar-btn.configRegisteredBtn",
           "when": "false"
         }
       ]
