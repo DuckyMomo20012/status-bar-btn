@@ -29,7 +29,7 @@ export function useClockContext(timeZone?: MaybeRefOrGetter<string | undefined>)
   // NOTE: Normalize the input parameter into a reactive Ref  wrapper
   // This safely handles raw strings, Vue refs, and functional getters like ()
   // => btn.value...
-  const tzRef = timeZone ? toRef(timeZone) : ref(undefined)
+  const tzRef = timeZone !== undefined ? toRef(timeZone) : ref(undefined)
 
   // 3. Return the single computed context layout object
   return computed<ClockFormats>(() => {

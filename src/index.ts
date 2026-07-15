@@ -16,7 +16,7 @@ const { activate, deactivate } = defineExtension(() => {
   const osContext = useOsContext()
 
   watch(() => [config.enabled, config.btns, activeTextEditor], async ([enabled, btns], _, onCleanup) => {
-    if (!enabled || !Array.isArray(btns)) {
+    if (enabled !== true || !Array.isArray(btns)) {
       return
     }
 
@@ -30,10 +30,10 @@ const { activate, deactivate } = defineExtension(() => {
       }))
 
       let tooltip: string | MarkdownString | undefined = btn.tooltip as string | MarkdownString | undefined
-      if (btn.tooltip && typeof btn.tooltip === 'object') {
+      if (btn.tooltip !== undefined && typeof btn.tooltip === 'object') {
         const tooltipObj = btn.tooltip as MarkdownString
         const md = new MarkdownString(interpolate(tooltipObj.value, context.value))
-        md.isTrusted = !!tooltipObj.isTrusted
+        md.isTrusted = Boolean(tooltipObj.isTrusted)
         md.supportThemeIcons = !!tooltipObj.supportThemeIcons
         tooltip = md
       }
@@ -41,7 +41,7 @@ const { activate, deactivate } = defineExtension(() => {
         tooltip = interpolate(btn.tooltip, context.value)
       }
 
-      const showOnWorkspaceContains = btn.showOnWorkspaceContains ? (await (workspace.findFiles(btn.showOnWorkspaceContains))).length > 0 : undefined
+      const showOnWorkspaceContains = (btn.showOnWorkspaceContains !== undefined) ? (await (workspace.findFiles(btn.showOnWorkspaceContains))).length > 0 : undefined
 
       const showOnLanguage = btn.showOnLanguage ? checkStringPattern(activeTextEditor?.value?.document.languageId ?? '', btn.showOnLanguage) : undefined
 
@@ -102,8 +102,8 @@ const { activate, deactivate } = defineExtension(() => {
     },
     'status-bar-btn.changeSettingsJson': (...args: Array<{
       setting: string
-      value?: string | number | boolean | null | undefined
-      enums?: Array<string | number | boolean | null | undefined>
+      value?: any
+      enums?: Array<any>
       forceWriteDefault?: boolean
     }>) => {
       // NOTE: Should determine the target based on the current setting value,
@@ -120,6 +120,7 @@ const { activate, deactivate } = defineExtension(() => {
       }
 
       for (const arg of args) {
+        // eslint-disable-next-line ts/no-unsafe-assignment
         const { setting, value, enums } = arg
         if (!setting) {
           logger.error(`Missing "setting" property in argument: ${JSON.stringify(arg)}`)
@@ -129,8 +130,8 @@ const { activate, deactivate } = defineExtension(() => {
 
         // NOTE: Direct changing value has higher priority than cycling through
         // enums. If both are provided, the value will be set directly.
-        if (value) {
-          if (arg.forceWriteDefault && value === 'undefined' && inspect?.defaultValue) {
+        if (value !== undefined) {
+          if (arg.forceWriteDefault && value === 'undefined' && inspect?.defaultValue !== undefined) {
             workspace.getConfiguration().update(setting, inspect.defaultValue, target)
           }
           else {
@@ -141,18 +142,19 @@ const { activate, deactivate } = defineExtension(() => {
         }
 
         if (enums) {
-          let currentValue = workspace.getConfiguration().get(setting) as string | number | boolean | null | undefined
+          let currentValue = workspace.getConfiguration().get(setting)
           if (currentValue === 'undefined') {
             currentValue = undefined
           }
           const currentEnumIdx = enums.indexOf(currentValue)
 
           if (currentEnumIdx === -1) {
-            logger.error(`Current value "${currentValue}" of setting "${setting}" is not in the provided enums: ${JSON.stringify(enums)}, set to the first enum value "${enums[0]}"`)
+            logger.error(`Current value "${currentValue as any}" of setting "${setting}" is not in the provided enums: ${JSON.stringify(enums)}, set to the first enum value "${enums[0]}"`)
           }
 
+          // eslint-disable-next-line ts/no-unsafe-assignment
           let newValue = enums[(currentEnumIdx + 1) % enums.length]
-          logger.info(`Cycling setting "${setting}" from current value "${currentValue}" to new value "${newValue}"`)
+          logger.info(`Cycling setting "${setting}" from current value "${currentValue as any}" to new value "${newValue}"`)
           if (newValue === 'undefined') {
             newValue = undefined
           }
@@ -162,7 +164,7 @@ const { activate, deactivate } = defineExtension(() => {
           // value. If the user explicitly wants to write the value by setting
           // forceWriteDefault to true, we will write the default value instead of
           // removing the setting from the configuration file.
-          if (arg.forceWriteDefault && newValue === undefined && inspect?.defaultValue) {
+          if (arg.forceWriteDefault && newValue === undefined && inspect?.defaultValue !== undefined) {
             workspace.getConfiguration().update(setting, inspect.defaultValue, target)
           }
           else {
