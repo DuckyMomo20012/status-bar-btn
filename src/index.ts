@@ -6,42 +6,9 @@ import { useClockContext } from './composables/useClockContext'
 import { useOsContext } from './composables/useOsContext'
 import { useWorkspaceContext } from './composables/useTemplateContext'
 import { config } from './config'
-import { deepMerge, getValueByPath, isDeepSubset, logger } from './utils'
+import { checkStringPattern, deepMerge, interpolate, isDeepSubset, logger } from './utils'
 
 const DEFAULT_BTN_VISIBILITY = false
-
-function toRegExp(str: string): RegExp {
-  const regexMatch = str.match(/^\/(.*)\/([gimsuy]*)$/)
-
-  if (regexMatch) {
-    const [_, pattern, flags] = regexMatch
-    return new RegExp(pattern, flags)
-  }
-
-  return new RegExp(str)
-}
-
-function activationStringCheck(a: string, b: string[]) {
-  if (!Array.isArray(b) || b.length === 0) {
-    return true
-  }
-
-  return b.some((str) => {
-    try {
-      const regex = toRegExp(str)
-      logger.info(`Checking if "${a}" matches regex pattern "${regex}"`)
-      return regex.test(a)
-    }
-    catch (error) {
-      logger.info(`Invalid regex pattern provided "${str}": ${error}`)
-      return false
-    }
-  })
-}
-
-function interpolate(template: string, contextData: any): string {
-  return template.replace(/\$\{([^}]+)\}/g, (_, targetPath) => getValueByPath(contextData, targetPath))
-}
 
 const { activate, deactivate } = defineExtension(() => {
   const activeTextEditor = useActiveTextEditor()
@@ -76,11 +43,11 @@ const { activate, deactivate } = defineExtension(() => {
 
       const showOnWorkspaceContains = btn.showOnWorkspaceContains ? (await (workspace.findFiles(btn.showOnWorkspaceContains))).length > 0 : undefined
 
-      const showOnLanguage = btn.showOnLanguage ? activationStringCheck(activeTextEditor?.value?.document.languageId ?? '', btn.showOnLanguage) : undefined
+      const showOnLanguage = btn.showOnLanguage ? checkStringPattern(activeTextEditor?.value?.document.languageId ?? '', btn.showOnLanguage) : undefined
 
-      const showOnFileName = btn.showOnFileName ? activationStringCheck(activeTextEditor?.value?.document.fileName ?? '', btn.showOnFileName) : undefined
+      const showOnFileName = btn.showOnFileName ? checkStringPattern(activeTextEditor?.value?.document.fileName ?? '', btn.showOnFileName) : undefined
 
-      const showOnFileText = btn.showOnFileText ? activationStringCheck(activeTextEditor?.value?.document.getText() ?? '', btn.showOnFileText) : undefined
+      const showOnFileText = btn.showOnFileText ? checkStringPattern(activeTextEditor?.value?.document.getText() ?? '', btn.showOnFileText) : undefined
 
       const isVisible = btn.visible ?? showOnWorkspaceContains ?? showOnLanguage ?? showOnFileName ?? showOnFileText ?? DEFAULT_BTN_VISIBILITY
 
