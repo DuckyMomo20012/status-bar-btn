@@ -5,6 +5,7 @@ import {
   deepMerge,
   getValueByPath,
   interpolate,
+  isDeepEqual,
   isDeepSubset,
   isObject,
   toRegExp,
@@ -92,6 +93,18 @@ describe('utils', () => {
     expect(right).toEqual({ a: { c: 2 }, arr: [3], extra: 'x' })
   })
 
+  it('deepMerge with nested objects and arrays', () => {
+    const result = deepMerge(
+      { a: { b: { c: 1 } }, list: [{ x: 1 }] },
+      { a: { b: { d: 2 } }, list: [{ y: 2 }] },
+    )
+
+    expect(result).toEqual({
+      a: { b: { c: 1, d: 2 } },
+      list: [{ y: 2 }],
+    })
+  })
+
   it('isDeepSubset', () => {
     expect(isDeepSubset(
       { a: { b: 1, c: 2 }, arr: [1, 2] },
@@ -107,5 +120,34 @@ describe('utils', () => {
       { arr: [1, 2] },
       { arr: [1] },
     )).toBe(false)
+  })
+
+  it('isDeepEqual primitives', () => {
+    expect(isDeepEqual(5, 5)).toBe(true)
+    expect(isDeepEqual('hello', 'hello')).toBe(true)
+    expect(isDeepEqual(5, '5')).toBe(false)
+    expect(isDeepEqual(null, null)).toBe(true)
+    expect(isDeepEqual(undefined, undefined)).toBe(true)
+  })
+
+  it('isDeepEqual objects', () => {
+    expect(isDeepEqual({ a: 1, b: 2 }, { a: 1, b: 2 })).toBe(true)
+    expect(isDeepEqual({ a: { b: 1 } }, { a: { b: 1 } })).toBe(true)
+    expect(isDeepEqual({ a: 1 }, { a: 1, b: 2 })).toBe(false)
+    expect(isDeepEqual({ a: 1 }, { a: 2 })).toBe(false)
+  })
+
+  it('isDeepEqual arrays', () => {
+    expect(isDeepEqual([1, 2, 3], [1, 2, 3])).toBe(true)
+    expect(isDeepEqual([{ x: 1 }], [{ x: 1 }])).toBe(true)
+    expect(isDeepEqual([1, 2], [1, 2, 3])).toBe(false)
+    expect(isDeepEqual([1], [1])).toBe(true)
+  })
+
+  it('isDeepEqual dates and regex', () => {
+    expect(isDeepEqual(new Date('2026-07-15'), new Date('2026-07-15'))).toBe(true)
+    expect(isDeepEqual(new Date('2026-07-15'), new Date('2026-07-16'))).toBe(false)
+    expect(isDeepEqual(/foo/i, /foo/i)).toBe(true)
+    expect(isDeepEqual(/foo/i, /foo/g)).toBe(false)
   })
 })

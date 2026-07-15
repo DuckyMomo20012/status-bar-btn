@@ -6,9 +6,11 @@ import { useClockContext } from './composables/useClockContext'
 import { useOsContext } from './composables/useOsContext'
 import { useWorkspaceContext } from './composables/useTemplateContext'
 import { config } from './config'
-import { checkStringPattern, deepMerge, interpolate, isDeepSubset, logger } from './utils'
+import { checkStringPattern, deepMerge, interpolate, isDeepEqual, isDeepSubset, isObject, logger } from './utils'
 
 const DEFAULT_BTN_VISIBILITY = false
+const DEFAULT_UPDATE_MODE = 'merge'
+const DEFAULT_ENUM_CHECK_MODE = 'strict'
 
 const { activate, deactivate } = defineExtension(() => {
   const activeTextEditor = useActiveTextEditor()
@@ -105,6 +107,8 @@ const { activate, deactivate } = defineExtension(() => {
       value?: any
       enums?: Array<any>
       forceWriteDefault?: boolean
+      updateMode?: 'merge' | 'replace'
+      enumCheckMode?: 'strict' | 'loose'
     }>) => {
       // NOTE: Should determine the target based on the current setting value,
       // not the new value being set. This ensures that we respect the user's
@@ -121,7 +125,7 @@ const { activate, deactivate } = defineExtension(() => {
 
       for (const arg of args) {
         // eslint-disable-next-line ts/no-unsafe-assignment
-        const { setting, value, enums } = arg
+        const { setting, value, enums, updateMode = DEFAULT_UPDATE_MODE, enumCheckMode = DEFAULT_ENUM_CHECK_MODE } = arg
         if (!setting) {
           logger.error(`Missing "setting" property in argument: ${JSON.stringify(arg)}`)
         }
@@ -135,7 +139,20 @@ const { activate, deactivate } = defineExtension(() => {
             workspace.getConfiguration().update(setting, inspect.defaultValue, target)
           }
           else {
-            workspace.getConfiguration().update(setting, value, target)
+            if (updateMode === 'merge' && isObject(value)) {
+              const currentValue = workspace.getConfiguration().get(setting)
+              if (isObject(currentValue)) {
+                const mergedValue = deepMerge(currentValue, value)
+                workspace.getConfiguration().update(setting, mergedValue, target)
+              }
+              else {
+                logger.error(`Cannot merge value for setting "${setting}" because the current value is not an object: ${currentValue as any}`)
+                workspace.getConfiguration().update(setting, value, target)
+              }
+            }
+            else {
+              workspace.getConfiguration().update(setting, value, target)
+            }
           }
 
           continue
@@ -146,10 +163,21 @@ const { activate, deactivate } = defineExtension(() => {
           if (currentValue === 'undefined') {
             currentValue = undefined
           }
-          const currentEnumIdx = enums.indexOf(currentValue)
+
+          const currentEnumIdx = enums.findIndex((enumValue) => {
+            if (isObject(currentValue) && isObject(enumValue)) {
+              if (enumCheckMode === 'loose') {
+                return isDeepSubset(currentValue, enumValue)
+              }
+              return isDeepEqual(currentValue, enumValue)
+            }
+            else {
+              return currentValue === enumValue
+            }
+          })
 
           if (currentEnumIdx === -1) {
-            logger.error(`Current value "${currentValue as any}" of setting "${setting}" is not in the provided enums: ${JSON.stringify(enums)}, set to the first enum value "${enums[0]}"`)
+            logger.error(`Current value "${isObject(currentValue) ? JSON.stringify(currentValue) : currentValue as string}" of setting "${setting}" is not in the provided enums: ${JSON.stringify(enums)}, set to the first enum value "${enums[0]}"`)
           }
 
           // eslint-disable-next-line ts/no-unsafe-assignment
@@ -168,7 +196,15 @@ const { activate, deactivate } = defineExtension(() => {
             workspace.getConfiguration().update(setting, inspect.defaultValue, target)
           }
           else {
-            workspace.getConfiguration().update(setting, newValue, target)
+            // NOTE: Enum values should have the same type as the current value,
+            // so we can safely merge them if they are both objects.
+            if (updateMode === 'merge' && isObject(currentValue) && isObject(newValue)) {
+              const mergedValue = deepMerge(currentValue, newValue)
+              workspace.getConfiguration().update(setting, mergedValue, target)
+            }
+            else {
+              workspace.getConfiguration().update(setting, newValue, target)
+            }
           }
           continue
         }
@@ -179,6 +215,8 @@ const { activate, deactivate } = defineExtension(() => {
         btnId: string
         value?: Omit<UseStatusBarItemOptions, 'id' | 'alignment' | 'priority'>
         enums?: Array<Omit<UseStatusBarItemOptions, 'id' | 'alignment' | 'priority'>>
+        updateMode?: 'merge' | 'replace'
+        enumCheckMode?: 'strict' | 'loose'
       }>
     ) => {
       // NOTE: Should determine the target based on the current setting value,
@@ -195,7 +233,7 @@ const { activate, deactivate } = defineExtension(() => {
       }
 
       for (const arg of args) {
-        const { btnId, value, enums } = arg
+        const { btnId, value, enums, updateMode = DEFAULT_UPDATE_MODE, enumCheckMode = DEFAULT_ENUM_CHECK_MODE } = arg
         if (!btnId) {
           logger.error(`Missing "btnId" property in argument: ${JSON.stringify(arg)}`)
           return
@@ -212,8 +250,12 @@ const { activate, deactivate } = defineExtension(() => {
         // NOTE: Direct changing value has higher priority than cycling through
         // enums. If both are provided, the value will be set directly.
         if (value) {
-          currentBtns[btnIndex] = deepMerge(currentBtns[btnIndex], value)
-
+          if (updateMode === 'replace') {
+            currentBtns[btnIndex] = value
+          }
+          else {
+            currentBtns[btnIndex] = deepMerge(currentBtns[btnIndex], value)
+          }
           logger.info(`Updating button with id "${btnId}" in configuration`)
 
           config.update('btns', currentBtns, target)
@@ -222,15 +264,28 @@ const { activate, deactivate } = defineExtension(() => {
 
         if (enums) {
           const currentValue = currentBtns[btnIndex]
-          const currentEnumIdx = enums.findIndex(enumValue => isDeepSubset(currentValue, enumValue))
+          const currentEnumIdx = enums.findIndex((enumValue) => {
+            if (isObject(currentValue) && isObject(enumValue)) {
+              if (enumCheckMode === 'loose') {
+                return isDeepSubset(currentValue, enumValue)
+              }
+              return isDeepEqual(currentValue, enumValue)
+            }
+            else {
+              return currentValue === enumValue
+            }
+          })
 
           if (currentEnumIdx === -1) {
             logger.error(`Current value of button with id "${btnId}" is not in the provided enums: ${JSON.stringify(enums)}, set to the first enum value "${JSON.stringify(enums[0])}"`)
           }
 
-          const newValue = deepMerge(currentValue, enums[(currentEnumIdx + 1) % enums.length])
-
-          currentBtns[btnIndex] = newValue
+          if (updateMode === 'merge') {
+            currentBtns[btnIndex] = deepMerge(currentBtns[btnIndex], enums[(currentEnumIdx + 1) % enums.length])
+          }
+          else {
+            currentBtns[btnIndex] = enums[(currentEnumIdx + 1) % enums.length]
+          }
 
           config.update('btns', currentBtns, target)
         }
