@@ -20,10 +20,11 @@
 
 <!-- commands -->
 
-| Command                             | Title                                    |
-| ----------------------------------- | ---------------------------------------- |
-| `status-bar-btn.toggle`             | status-bar-btn: Toggle Status Bar Button |
-| `status-bar-btn.changeSettingsJson` | status-bar-btn: Change Settings Json     |
+| Command                              | Title                                       |
+| ------------------------------------ | ------------------------------------------- |
+| `status-bar-btn.toggle`              | status-bar-btn: Toggle Status Bar Button    |
+| `status-bar-btn.changeSettingsJson`  | status-bar-btn: Change Settings Json        |
+| `status-bar-btn.configRegisteredBtn` | status-bar-btn: Configure Registered Button |
 
 <!-- commands -->
 
@@ -38,6 +39,10 @@
 - **Change Settings Json File**: Change the `settings.json` file directly from
   the status bar button, allowing you to toggle settings or cycle through
   predefined values.
+
+- **Configure Registered Button**: Configure registered buttons in the
+  `status-bar-btn.btns` array directly from the status bar button, allowing you
+  to change button properties without editing the `settings.json` file.
 
 - **Workspace Context Interpolation**: Use workspace and file context variables
   in button text and tooltip for dynamic content.
@@ -294,7 +299,9 @@ practices when designing status bar buttons.
   }
   ```
 
-## Changing Settings Json File
+## Commands
+
+### Changing Settings Json File
 
 This extension provides a command `status-bar-btn.changeSettingsJson` that allows
 you to change the `settings.json` file directly from the status bar button.
@@ -452,6 +459,83 @@ click.
   }
   ```
 
+### Configure Registered Button
+
+The command `status-bar-btn.configRegisteredBtn` allows you to configure
+**registered buttons** in the  `status-bar-btn.btns` array directly from the
+status bar button. This command is useful for quickly changing the configuration
+of a button without having to manually edit the `settings.json` file.
+
+**Arguments**:
+
+- `btnId` (`string`) (**required**): The `id` of the button to configure. This must
+  match the `id` of a button in the `status-bar-btn.btns` array.
+
+- `value` (`Omit<UseStatusBarItemOptions, 'id' | 'alignment' | 'priority'>`)
+  (optional): The new configuration values to set for the button. This can
+  include any of the properties of a button configuration, except for `id`,
+  `alignment`, `priority`, and `name`.
+  - Note that `value` has a higher priority than `enums`. If `value` is
+    provided, it will be used directly to update the setting.
+
+- `enums` (`Array<Omit<UseStatusBarItemOptions, 'id' | 'alignment' |
+  'priority'>>`) (optional): An optional array of allowed configuration values
+  for the button. If provided, the command will cycle through these values when
+  clicked.
+  - If the current value of the button configuration is not in the `enums`
+    array, it will be set to the first value in the `enums` array.
+
+**Examples**:
+
+- **Cycle button tooltip images**: Cycle between different images in the tooltip
+  of a button. This example demonstrates how to use the
+  `status-bar-btn.configRegisteredBtn` command to change the `tooltip` property
+  of a registered button.
+
+  ```json
+  {
+    "alignment": "left",
+    "color": "#E64553",
+    "command": {
+      "command": "status-bar-btn.configRegisteredBtn",
+      "title": "Cycle Tooltip Images",
+      "arguments": [
+        {
+          "btnId": "cycle-tooltip-images",
+          "enums": [
+            {
+              "tooltip": {
+                "value": "$(robot) ![Image 1](https://user-images.githubusercontent.com/74038190/212257454-16e3712e-945a-4ca2-b238-408ad0bf87e6.gif)",
+                "supportThemeIcons": true
+              }
+            },
+            {
+              "tooltip": {
+                "value": "$(robot) ![Image 2](https://user-images.githubusercontent.com/74038190/212257468-1e9a91f1-b626-4baa-b15d-5c385dfa7ed2.gif)",
+                "supportThemeIcons": true
+              }
+            },
+            {
+              "tooltip": {
+                "value": "$(robot) ![Image 3](https://user-images.githubusercontent.com/74038190/212257465-7ce8d493-cac5-494e-982a-5a9deb852c4b.gif)",
+                "supportThemeIcons": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "id": "cycle-tooltip-images",
+    "name": "Cycle Tooltip Images",
+    "text": "$(robot) asf",
+    "tooltip": {
+      "value": "$(robot) ![Image 3](https://user-images.githubusercontent.com/74038190/212257465-7ce8d493-cac5-494e-982a-5a9deb852c4b.gif)",
+      "supportThemeIcons": true
+    },
+    "visible": true
+  }
+  ```
+
 ## Workspace Value Interpolation
 
 Value interpolation is supported for these button configuration properties:
@@ -542,10 +626,10 @@ Interpolation values:
   IANA timezone for the clock interpolation. If omitted, it will default to the
   host system timezone.
 
-  For example:
+  For example: Display multiple clocks in different timezones in the status bar.
 
   ```json
-  {
+  [{
     "alignment": "left",
     "color": "#E64553",
     "id": "clock",
@@ -557,7 +641,19 @@ Interpolation values:
       "clockTimezone": "America/New_York"
     },
     "visible": true
-  }
+  }, {
+    "alignment": "left",
+    "color": "#E64553",
+    "id": "clock-utc",
+    "name": "Clock UTC",
+    "priority": -6,
+    "text": "${clock:hhmmss} ${clock:fullDate}",
+    "tooltip": "${clock:hhmmss} ${clock:fullDate}",
+    "interpolation": {
+      "clockTimezone": "UTC"
+    },
+    "visible": true
+  }]
   ```
 
 ## Full Configuration Schema
