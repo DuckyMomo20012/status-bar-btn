@@ -53,6 +53,69 @@
 - **Clock Interpolation**: Display the current time and date in button text and
   tooltip, with support for custom IANA timezones.
 
+## Button Configuration Properties
+
+Please refer to the [Full Configuration Schema](#full-configuration-schema)
+section for a complete list of button configuration properties and their
+descriptions, or go to VS Code's
+[StatusBarItem](https://code.visualstudio.com/api/references/vscode-api#StatusBarItem)
+documentation for more information.
+
+- `accessibilityInformation` (`{ label: string, role?: string}`): Accessibility
+  information used when a screen reader interacts with this StatusBar item.
+
+- `alignment`: The alignment of this item in the status bar (left or right).
+
+- `backgroundColor` (`statusBarItem.errorBackground |
+statusBarItem.warningBackground`): The background color for this entry.
+  Officially supports `statusBarItem.errorBackground` or
+  `statusBarItem.warningBackground`.
+
+- `color` (`string | { id: string }`): The color of the button text. Can be a
+  hex color code or a theme color ID.
+
+- `command` (`string | { command: string, title: string, arguments?: any[] }`):
+  The command to execute when the button is clicked. Can be a string or an
+  object with a command, title, and optional arguments.
+  - If you want to execute multiple commands, you can use the built-in
+    `runCommands` command and pass an array of commands as arguments.
+
+- `id` (`string`): The identifier of the button. Must be unique across all
+  buttons.
+
+- `name` (`string`): The name of the button. Used for display purposes and
+  should be unique across all buttons.
+
+- `priority` (`number`): The priority of this item. Higher values push the item
+  further to the left.
+
+- `text` (`string`): The text to display in the status bar. Can include
+  [theme icons](https://code.visualstudio.com/api/references/icons-in-labels).
+
+- `tooltip` (`string | { value: string, supportThemeIcons?: boolean }`): The
+  tooltip to display when hovering over the button. Can be a string or an
+  object with a value and optional support for theme icons.
+
+- `interpolation` (`{ clockTimezone?: string }`): An object that allows you to
+  specify a custom IANA timezone for the clock interpolation. If omitted, it
+  will default to the host system timezone.
+
+- `visible` (`boolean`): Please refer to the [Button Visibility
+  Logic](#button-visibility-logic) section for more information on how to
+  control button visibility.
+
+- `showOnWorkspaceContains` (`string[]`): Please refer to the [Button Visibility Logic](#button-visibility-logic) section
+  for more information on how to control button visibility.
+
+- `showOnLanguage` (`string[]`): Please refer to the [Button Visibility Logic](#button-visibility-logic) section
+  for more information on how to control button visibility.
+
+- `showOnFileName` (`string[]`): Please refer to the [Button Visibility Logic](#button-visibility-logic) section
+  for more information on how to control button visibility.
+
+- `showOnFileText` (`string[]`): Please refer to the [Button Visibility Logic](#button-visibility-logic) section
+  for more information on how to control button visibility.
+
 ## Button Visibility Logic
 
 > [!WARNING]
@@ -140,7 +203,7 @@ reactive and will require a reload to take effect. The following properties are
 - `priority`: The priority of the button in the status bar. Changing this will
   require a reload to take effect.
 
-## UX Guidelines
+## Button UX Guidelines
 
 Please refer to official [VS Code UX
 Guidelines](https://code.visualstudio.com/api/ux-guidelines/status-bar) for best
@@ -299,6 +362,33 @@ practices when designing status bar buttons.
   }
   ```
 
+- **Reload both Eslint and Typescript**: This button allows you to quickly
+  reload both Eslint and Typescript using `runCommands` built-in VS Code
+  command.
+
+  ```json
+  {
+    "alignment": "left",
+    "color": "#E64553",
+    "command": {
+      "command": "runCommands",
+      "title": "Reload Eslint and Typescript",
+      "arguments": [{
+        "commands": [
+          "eslint.restart",
+          "typescript.restartTsServer"
+        ]
+      }]
+    },
+    "id": "reload-eslint-ts",
+    "name": "Reload Eslint and Typescript",
+    "priority": -5,
+    "text": "$(sync)",
+    "tooltip": "Reload both Eslint and Typescript",
+    "visible": true
+  }
+  ```
+
 ## Commands
 
 ### Changing Settings Json File
@@ -343,10 +433,23 @@ click.
   - If the current value of the setting is not in the `enums` array, it will be
     set to the first value in the `enums` array.
 
+  - Enum values should have the same type as the current value, so we can safely
+    merge them if they are both objects.
+
 - `forceWriteDefault` (`boolean`) (optional): By default, if the new value is
   the same as the default value or `undefined`, the setting won't be written to
   the `settings.json` file. If you want to force writing the default value to
   the `settings.json` file, set this to `true`.
+
+- `updateMode` (`'merge' | 'replace'`) (optional): If the setting value is an
+  object, it will be deeply merged with the existing value. If you want
+  to replace the existing value completely, set this to `replace`. Default is
+  `merge`.
+
+- `enumCheckMode` (`'strict' | 'loose'`) (optional): If the setting value is an
+  object, it will be deeply compared with the enum values. If you want to check
+  if the current value is a deep subset of the enum value, set this to `loose`.
+  Default is `strict`.
 
 > [!NOTE]
 > If the setting is not registered in the VS Code, nothing will happen. For
@@ -482,6 +585,19 @@ of a button without having to manually edit the `settings.json` file.
   - If the current value of the button configuration is not in the `enums`
     array, it will be set to the first value in the `enums` array.
 
+  - Enum values should have the same type as the current value, so we can safely
+    merge them if they are both objects.
+
+- `updateMode` (`'merge' | 'replace'`) (optional): If the setting value is an
+  object, it will be deeply merged with the existing value. If you want
+  to replace the existing value completely, set this to `replace`. Default is
+  `merge`.
+
+- `enumCheckMode` (`'strict' | 'loose'`) (optional): If the setting value is an
+  object, it will be deeply compared with the enum values. If you want to check
+  if the current value is a deep subset of the enum value, set this to `loose`.
+  Default is `strict`.
+
 **Examples**:
 
 - **Cycle button tooltip images**: Cycle between different images in the tooltip
@@ -524,7 +640,7 @@ of a button without having to manually edit the `settings.json` file.
     },
     "id": "cycle-tooltip-images",
     "name": "Cycle Tooltip Images",
-    "text": "$(robot) asf",
+    "text": "$(robot)",
     "tooltip": {
       "value": "$(robot) ![Image 3](https://user-images.githubusercontent.com/74038190/212257465-7ce8d493-cac5-494e-982a-5a9deb852c4b.gif)",
       "supportThemeIcons": true
@@ -689,7 +805,7 @@ Studio Code`, `VSCodium`, etc.
               - left
               - right
             - **default:** right
-            - **description:** The alignment of this item in the status bar (Left or Right).
+            - **description:** The alignment of this item in the status bar (left or right).
           - **priority:**
             - **type:** number
             - **description:** The priority of this item. Higher values push the item further to the left.
