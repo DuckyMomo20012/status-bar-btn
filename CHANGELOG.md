@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.3.0](https://github.com/DuckyMomo20012/status-bar-btn/compare/v1.2.0...v1.3.0) (2026-07-15)
+
+
+### Features
+
+* setup configBtn command ([68835ea](https://github.com/DuckyMomo20012/status-bar-btn/commit/68835ea2284b76440179c37d1724a432dd0811c8))
+
+
+### Bug Fixes
+
+* update fn jsdocs ([92ba5fa](https://github.com/DuckyMomo20012/status-bar-btn/commit/92ba5fa1af4c67b7b4abe86a27bc90eef230beb3))
+
 ## [1.2.0](https://github.com/DuckyMomo20012/status-bar-btn/compare/v1.1.0...v1.2.0) (2026-07-10)
 
 

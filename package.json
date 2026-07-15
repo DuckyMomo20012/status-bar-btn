@@ -2,7 +2,7 @@
   "publisher": "DuckyMomo20012",
   "name": "status-bar-btn",
   "displayName": "status-bar-btn",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "private": true,
   "packageManager": "pnpm@11.9.0",
   "description": "Register custom buttons in the status bar with a simple configuration.",
