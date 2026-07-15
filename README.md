@@ -53,7 +53,6 @@
 - **Clock Interpolation**: Display the current time and date in button text and
   tooltip, with support for custom IANA timezones.
 
-
 ## Button Visibility Logic
 
 > [!WARNING]
@@ -233,6 +232,7 @@ practices when designing status bar buttons.
     "visible": true
   }
   ```
+
 - **Reset Font Zoom**: Sometimes, you may zoom the font in/out of the editor by
   accident (using `Ctrl` + `Mouse Wheel`). This button allows you to reset the font zoom
   back to the default value.
@@ -328,8 +328,7 @@ click.
     used here. For example, you can use `editor.fontSize` to change the font
     size, or `workbench.colorTheme` to change the color theme.
 
-- `value` (`string | number | boolean | null | undefined`) (optional): The new
-  value to set for the setting.
+- `value` (`any`) (optional): The new value to set for the setting.
   - Note that `value` has a higher priority than `enums`. If `value` is
     provided, it will be used directly to update the setting.
 
@@ -339,9 +338,8 @@ click.
   - To set value to `undefined`, you can use the string `"undefined"` (e.g.,
     `value: "undefined"`).
 
-- `enums` (`Array<string | number | boolean | null | undefined>`) (optional): An
-  optional array of allowed values for the setting. If provided, the command
-  will cycle through these values when clicked.
+- `enums` (`Array<any>`) (optional): An optional array of allowed values for the
+  setting. If provided, the command will cycle through these values when clicked.
   - If the current value of the setting is not in the `enums` array, it will be
     set to the first value in the `enums` array.
 
@@ -355,7 +353,6 @@ click.
 > example, if you try to change a setting that doesn't exist, or the setting is
 > registered by an extension that is not installed or disabled, nothing will
 > happen.
-
 
 > [!NOTE]
 > If the `setting`'s default value is `false`, and you set the `enums` to
@@ -462,7 +459,7 @@ click.
 ### Configure Registered Button
 
 The command `status-bar-btn.configRegisteredBtn` allows you to configure
-**registered buttons** in the  `status-bar-btn.btns` array directly from the
+**registered buttons** in the `status-bar-btn.btns` array directly from the
 status bar button. This command is useful for quickly changing the configuration
 of a button without having to manually edit the `settings.json` file.
 
@@ -479,7 +476,7 @@ of a button without having to manually edit the `settings.json` file.
     provided, it will be used directly to update the setting.
 
 - `enums` (`Array<Omit<UseStatusBarItemOptions, 'id' | 'alignment' |
-  'priority'>>`) (optional): An optional array of allowed configuration values
+'priority'>>`) (optional): An optional array of allowed configuration values
   for the button. If provided, the command will cycle through these values when
   clicked.
   - If the current value of the button configuration is not in the `enums`
@@ -561,7 +558,7 @@ Interpolation values:
     etc.
 
   - `${env:appName}`: The name of the VS Code application. For example: `Visual
-    Studio Code`, `VSCodium`, etc.
+Studio Code`, `VSCodium`, etc.
 
   - `${env:remoteName}`: The name of the remote environment. For example: `SSH`, `WSL`,
     etc. If there is no remote environment, it will be an default `local` value.
@@ -676,7 +673,7 @@ Interpolation values:
     - **status-bar-btn.btns:**
       - **type:** array
       - **default:**
-        - *(empty array)*
+        - _(empty array)_
       - **description:** An array of button configurations for the status bar.
       - **items:**
         - **type:** object
@@ -719,7 +716,7 @@ Interpolation values:
                     - **description:** The markdown string.
                   - **isTrusted:**
                     - **type:** boolean
-                    - **description:** Indicates that this markdown string is from a trusted source. Only *trusted* markdown supports links that execute commands, e.g. `[Run it](command:myCommandId)`. Defaults to `false` (commands are disabled).
+                    - **description:** Indicates that this markdown string is from a trusted source. Only _trusted_ markdown supports links that execute commands, e.g. `[Run it](command:myCommandId)`. Defaults to `false` (commands are disabled).
                   - **supportThemeIcons:**
                     - **type:** boolean
                     - **description:** Indicates that this markdown string can contain [ThemeIcons](https://code.visualstudio.com/api/references/vscode-api#ThemeIcon), e.g. `$(zap)`.
@@ -774,7 +771,7 @@ Interpolation values:
                     - **type:** array
                     - **description:** Arguments that the command handler should be invoked with.
                     - **items:**
-                      - *(empty object)*
+                      - _(empty object)_
           - **accessibilityInformation:**
             - **type:** object
             - **description:** Accessibility information used when a screen reader interacts with this item.
@@ -913,8 +910,8 @@ See the **[LICENSE.md](./LICENSE.md)** file for full details.
 ## Acknowledgements
 
 - This extension is inspired by the
-[anweber.statusbar-commands](https://marketplace.visualstudio.com/items?itemName=anweber.statusbar-commands)
-extension by Andreas Weber.
+  [anweber.statusbar-commands](https://marketplace.visualstudio.com/items?itemName=anweber.statusbar-commands)
+  extension by Andreas Weber.
 
 - Built with the [reactive-vscode](https://github.com/kermanx/reactive-vscode)
   framework, a more modern and reactive approach to configuration and
