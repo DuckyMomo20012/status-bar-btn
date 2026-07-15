@@ -34,6 +34,7 @@
     "dist/*",
     "res/*"
   ],
+  "changelog": "CHANGELOG.md",
   "engines": {
     "vscode": "^1.97.0"
   },
@@ -284,7 +285,7 @@
     }
   },
   "scripts": {
-    "build": "tsdown src/index.ts --external vscode",
+    "build": "tsdown src/index.ts --deps.neverBundle vscode",
     "dev": "nr build --watch --sourcemap",
     "prepare": "nr update",
     "update": "vscode-ext-gen --output src/generated/meta.ts",
@@ -298,17 +299,17 @@
   "devDependencies": {
     "@antfu/eslint-config": "9.1.0",
     "@antfu/ni": "30.2.0",
-    "@types/node": "26.1.0",
+    "@types/node": "26.1.1",
     "@types/vscode": "^1.97.0",
     "@vscode/vsce": "3.9.2",
-    "eslint": "9.39.4",
-    "prettier": "^3.9.4",
+    "eslint": "9.39.5",
+    "eslint-plugin-format": "^2.0.1",
     "reactive-vscode": "1.0.2",
     "taze": "19.14.1",
-    "tsdown": "0.22.3",
+    "tsdown": "0.22.7",
     "typescript": "6.0.3",
-    "vite": "8.1.3",
-    "vitest": "4.1.9",
+    "vite": "8.1.4",
+    "vitest": "4.1.10",
     "vscode-ext-gen": "1.6.0",
     "vsxpub": "0.1.4"
   }

@@ -8,9 +8,9 @@ export default defineConfig({
   format: ['cjs'],
   shims: false,
   dts: false,
-  external: [
-    'vscode',
-  ],
+  deps: {
+    neverBundle: ['vscode'],
+  },
   hooks(hooks) {
     hooks.hookOnce('build:prepare', () => {
       execSync('nr update')

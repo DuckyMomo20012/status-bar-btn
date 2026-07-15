@@ -31,7 +31,7 @@ export function checkStringPattern(a: string, b: string[]) {
       logger.info(`Checking if "${a}" matches regex pattern "${regex}"`)
       return regex.test(a)
     }
-    catch (error) {
+    catch (error: any) {
       logger.info(`Invalid regex pattern provided "${str}": ${error}`)
       return false
     }
@@ -45,7 +45,7 @@ export function checkStringPattern(a: string, b: string[]) {
  * @returns The interpolated string with placeholders replaced by actual values
  */
 export function interpolate(template: string, contextData: any): string {
-  return template.replace(/\$\{([^}]+)\}/g, (_, targetPath) => getValueByPath(contextData, targetPath))
+  return template.replace(/\$\{([^}]+)\}/g, (_, targetPath) => getValueByPath(contextData, targetPath as string))
 }
 
 /**
@@ -111,10 +111,12 @@ export function getValueByPath(obj: any, pathStr: string): string {
   try {
     const segments = parseObjectPath(pathStr)
 
+    // eslint-disable-next-line ts/no-unsafe-assignment
     const result = segments.reduce((currentValue, key) => {
       if (currentValue === null || currentValue === undefined) {
         return undefined
       }
+      // eslint-disable-next-line ts/no-unsafe-return, ts/no-unsafe-member-access
       return currentValue[key]
     }, obj)
 
@@ -150,6 +152,7 @@ export function deepMerge<T extends Record<string, any>[]>(...objects: T): Union
       continue
 
     for (const [key, value] of Object.entries(obj)) {
+      // eslint-disable-next-line ts/no-unsafe-assignment
       const prevValue = result[key]
 
       if (isObject(value) && isObject(prevValue)) {
@@ -158,6 +161,7 @@ export function deepMerge<T extends Record<string, any>[]>(...objects: T): Union
       else if (Array.isArray(value)) {
         // Clone arrays to prevent shared references. If you want to merge arrays,
         // you can change this to: result[key] = [...(Array.isArray(prevValue) ? prevValue : []), ...value];
+        // eslint-disable-next-line ts/no-unsafe-assignment
         result[key] = [...value]
       }
       else if (isObject(value)) {
@@ -165,11 +169,13 @@ export function deepMerge<T extends Record<string, any>[]>(...objects: T): Union
         result[key] = deepMerge({}, value)
       }
       else {
+        // eslint-disable-next-line ts/no-unsafe-assignment
         result[key] = value
       }
     }
   }
 
+  // eslint-disable-next-line ts/no-unsafe-return
   return result as any
 }
 
@@ -198,7 +204,9 @@ export function isDeepSubset(target: any, candidate: any): boolean {
       return false
     }
 
+    // eslint-disable-next-line ts/no-unsafe-assignment
     const targetVal = target[key]
+    // eslint-disable-next-line ts/no-unsafe-assignment
     const candidateVal = candidate[key]
 
     if (isObject(candidateVal)) {

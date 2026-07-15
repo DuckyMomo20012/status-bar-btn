@@ -49,7 +49,7 @@ export function useWorkspaceContext() {
       env: {
         language: vscode.env.language,
         appName: vscode.env.appName,
-        remoteName: vscode.env.remoteName || 'local',
+        remoteName: (vscode.env.remoteName !== undefined) || 'local',
         uiKind: vscode.env.uiKind === vscode.UIKind.Desktop ? 'desktop' : 'web',
       },
       file: {
