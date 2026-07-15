@@ -237,3 +237,52 @@ export function isDeepSubset(target: any, candidate: any): boolean {
 
   return true
 }
+
+/**
+ * Performs a deep equality check between two values.
+ * Returns true if they are deeply equal, false otherwise.
+ * @param a The first value to compare.
+ * @param b The second value to compare.
+ * @returns true if `a` and `b` are deeply equal, false otherwise.
+ */
+export function isDeepEqual(a: any, b: any): boolean {
+  // 1. Same reference or identical primitive values
+  if (a === b)
+    return true
+
+  // 2. Handle structural null / Type mismatch guard
+  if (a === null || b === null || typeof a !== 'object' || typeof b !== 'object') {
+    return false
+  }
+
+  // 3. Special Object handling: Dates
+  if (a instanceof Date && b instanceof Date) {
+    return a.getTime() === b.getTime()
+  }
+
+  // 4. Special Object handling: Regular Expressions
+  if (a instanceof RegExp && b instanceof RegExp) {
+    return a.toString() === b.toString()
+  }
+
+  // 5. Array/Object property key matching length check
+  // eslint-disable-next-line ts/no-unsafe-argument
+  const keysA = Object.keys(a)
+  // eslint-disable-next-line ts/no-unsafe-argument
+  const keysB = Object.keys(b)
+
+  if (keysA.length !== keysB.length)
+    return false
+
+  // 6. Deep recursive comparison across matching key identities
+  for (const key of keysA) {
+    // eslint-disable-next-line ts/no-unsafe-argument
+    if (!Object.hasOwn(b, key))
+      return false
+    // eslint-disable-next-line ts/no-unsafe-member-access
+    if (!isDeepEqual(a[key], b[key]))
+      return false
+  }
+
+  return true
+}

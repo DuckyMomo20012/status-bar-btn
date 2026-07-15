@@ -30,6 +30,7 @@
   "main": "./dist/index.cjs",
   "icon": "res/icon.png",
   "files": [
+    "CHANGELOG.md",
     "LICENSE.md",
     "dist/*",
     "res/*"
@@ -102,7 +103,7 @@
                   "right"
                 ],
                 "default": "right",
-                "description": "The alignment of this item in the status bar (Left or Right)."
+                "description": "The alignment of this item in the status bar (left or right)."
               },
               "priority": {
                 "type": "number",
