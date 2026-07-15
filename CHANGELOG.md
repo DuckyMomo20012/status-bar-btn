@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/DuckyMomo20012/status-bar-btn/compare/v1.3.1...v1.4.0) (2026-07-15)
+
+
+### Features
+
+* setup updateMode and enumCheckMode options ([585f1a4](https://github.com/DuckyMomo20012/status-bar-btn/commit/585f1a4d8006c5cfe8d9b2e159cf23c39016d196))
+
 ## [1.3.1](https://github.com/DuckyMomo20012/status-bar-btn/compare/v1.3.0...v1.3.1) (2026-07-15)
 
 
